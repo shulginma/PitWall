@@ -3,14 +3,18 @@
 #include <algorithm>
 #include <limits>
 #include <stdexcept>
+#include <utility>
 
 namespace pitwall::simulation {
 
-FixedStepSimulation::FixedStepSimulation(VehicleConfig config, std::size_t max_steps_per_frame)
-    : model_(config), max_steps_per_frame_(max_steps_per_frame) {
+FixedStepSimulation::FixedStepSimulation(VehicleConfig config, std::size_t max_steps_per_frame,
+                                         VehicleState initial_state)
+    : model_(config), max_steps_per_frame_(max_steps_per_frame), state_(initial_state),
+      previous_state_(initial_state), initial_state_(initial_state) {
     if (max_steps_per_frame_ == 0 || max_steps_per_frame_ > 1000) {
         throw std::invalid_argument("Catch-up limit must be in [1, 1000]");
     }
+    model_.validate_state(initial_state_);
 }
 
 FrameResult FixedStepSimulation::advance(std::chrono::microseconds frame_time,
@@ -31,12 +35,20 @@ FrameResult FixedStepSimulation::advance(std::chrono::microseconds frame_time,
 
     // Commit only after all steps succeed: invalid arithmetic leaves the frame unchanged.
     VehicleState next = state_;
+    VehicleState previous = previous_state_;
+    std::vector<SimulationTick> ticks;
+    ticks.reserve(steps);
     for (std::size_t i = 0; i < steps; ++i) {
+        previous = next;
         next = model_.step(next, controls, fixed_step);
+        ticks.push_back({next, time_ + fixed_step *
+            static_cast<std::chrono::microseconds::rep>(i + 1)});
     }
     const auto next_remainder = available % fixed_step;
     const auto dropped = available - simulated - next_remainder;
     state_ = next;
+    previous_state_ = previous;
+    last_ticks_ = std::move(ticks);
     remainder_ = next_remainder;
     time_ += simulated;
     ticks_ += steps;
@@ -48,11 +60,19 @@ FrameResult FixedStepSimulation::advance(std::chrono::microseconds frame_time,
 }
 
 void FixedStepSimulation::reset() noexcept {
-    state_ = {};
+    state_ = initial_state_;
+    previous_state_ = initial_state_;
+    last_ticks_.clear();
     last_controls_ = {};
     remainder_ = {};
     time_ = {};
     ticks_ = 0;
+}
+
+void FixedStepSimulation::reset(VehicleState initial_state) {
+    model_.validate_state(initial_state);
+    initial_state_ = initial_state;
+    reset();
 }
 
 domain::TelemetrySample FixedStepSimulation::telemetry(std::uint64_t session_id) const {

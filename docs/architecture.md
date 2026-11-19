@@ -4,9 +4,9 @@
 
 PitWall is a telemetry analysis tool with its own small driving simulator. No racing
 game is required. Two processes are planned: Simulator and Analyzer. Replay is a
-mode of Analyzer. The current simulator implements headless vehicle physics, closed
-track geometry and lap tracking with scripted demos. Analyzer still implements its
-console entry point only. An integration test connects actual vehicle states to lap timing.
+mode of Analyzer. The simulator now has a Windows interactive window in addition
+to headless demos. Analyzer remains a console entry point. DrivingSession composes
+every vehicle tick with lap timing independently of graphics. See [GUI](gui.md).
 
 ```mermaid
 flowchart TD
@@ -41,7 +41,9 @@ for every class. Do not create a monolithic TelemetryCore manager.
 
 ## Planned libraries
 
-GLFW/OpenGL for windows and input, Dear ImGui for UI and simple top-down drawing,
+The current Windows adapter uses Win32/WGL, OpenGL and vendored Dear ImGui. GLFW
+is the intended portable replacement when a suitable source dependency is available.
+The remaining planned stack uses Dear ImGui for UI and simple top-down drawing,
 ImPlot for charts, Boost.Asio for UDP, SQLite for recordings, nlohmann/json for
 configuration and the initial wire codec, GoogleTest for unit tests. No SFML is
 needed initially. Introduce and pin dependencies as implementation needs arise.

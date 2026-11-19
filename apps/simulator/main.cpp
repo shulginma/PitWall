@@ -1,5 +1,8 @@
 #include <pitwall/simulation/fixed_step.hpp>
 #include <pitwall/track/lap_tracker.hpp>
+#ifdef PITWALL_HAS_GUI
+#include "gui.hpp"
+#endif
 
 #include <exception>
 #include <algorithm>
@@ -94,11 +97,28 @@ int main(int argc, char* argv[]) {
         return 0;
     }
     if (argc == 2 && std::string_view{argv[1]} == "--help") {
-        std::cout << "Usage: pitwall_simulator [--help | --version | --demo | --track-demo]\n"
+        std::cout << "Usage: pitwall_simulator [--help | --version | --demo | --track-demo | --drive]\n"
                      "--demo runs a scripted headless vehicle simulation without waiting.\n"
                      "--track-demo checks two laps using scripted centreline positions.\n"
-                     "Graphics, keyboard driving and UDP are future milestones.\n";
+                     "--drive opens the interactive simulator (requires a GUI build).\n"
+                     "--gui-smoke FILE.bmp renders a hidden diagnostic frame (GUI build).\n";
         return 0;
+    }
+    if ((argc == 2 && std::string_view{argv[1]} == "--drive") ||
+        (argc == 3 && (std::string_view{argv[1]} == "--gui-smoke" ||
+                       std::string_view{argv[1]} == "--gui-window-smoke"))) {
+#ifdef PITWALL_HAS_GUI
+        try {
+            return pitwall::app::run_gui(argc == 3 ? argv[2] : nullptr,
+                                         std::string_view{argv[1]} == "--gui-window-smoke");
+        } catch (const std::exception& error) {
+            std::cerr << "GUI error: " << error.what() << '\n';
+            return 1;
+        }
+#else
+        std::cerr << "GUI is disabled. Configure with a windows-mingw-gui or windows-msvc-gui preset.\n";
+        return 2;
+#endif
     }
     if (argc == 2 && std::string_view{argv[1]} == "--demo") {
         try {
@@ -122,5 +142,5 @@ int main(int argc, char* argv[]) {
     }
     std::cout << "PitWall Simulator " << PITWALL_VERSION << " - vehicle physics ready\n"
                  "Track geometry and lap tracking ready. Run --demo or --track-demo.\n"
-                 "No graphical window yet.\n";
+                 "Use --drive in a GUI build for keyboard driving.\n";
 }

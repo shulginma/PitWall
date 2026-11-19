@@ -2,13 +2,49 @@
 
 Racing Simulator & Telemetry Analyzer, written in C++20.
 
-**Status: Track Geometry & Lap Tracking (0.3.0).** The simulator has a GUI-independent
-vehicle model, a 100 Hz fixed-step runner, closed track geometry, centreline projection,
-ordered checkpoints and valid/invalid lap timing. Headless demos exercise physics and
-track logic. It is not yet a playable game. Graphics, keyboard driving, UDP, SQLite,
-replay and comparison of laps are planned, not implemented.
+**Status: Interactive Windows Simulator (0.4.1).** A top-down window now renders the
+road, car, start/checkpoints and a driving dashboard. WASD controls the existing
+100 Hz vehicle model, P pauses and R restarts. Lap timing receives every physics
+tick. UDP, the Analyzer dashboard, SQLite, replay and lap comparison remain planned.
 
-## Build on Windows: available MinGW toolchain
+![PitWall simulator diagnostic rendering](docs/images/simulator.png)
+
+0.4.1 fixes clipped native-window rendering on scaled Windows displays. A startup
+PerMonitorV2 manifest aligns the window, WGL and UI pixel spaces; DPI-change messages
+resize the window. The car now has a prominent YOU ring and an off-map indicator.
+The native window framebuffer (not only an offscreen buffer) was verified on MinGW
+and MSVC. Close the old simulator before rebuilding its executable.
+
+## Interactive simulator on Windows
+
+```powershell
+$env:Path = 'C:\msys64\ucrt64\bin;' + $env:Path
+cmake --preset windows-mingw-gui
+cmake --build --preset windows-mingw-gui --parallel 2
+ctest --preset windows-mingw-gui
+.\build\windows-mingw-gui\apps\simulator\pitwall_simulator.exe --drive
+```
+
+W accelerates, S brakes (no reverse), A/D steer, P pauses/resumes, R restarts and
+Escape closes. Buttons also pause/restart. Losing focus or minimizing pauses the
+session; press P or Resume after returning. Ordinary no-argument startup still
+prints status and exits, so automated startup tests never open a window.
+
+For MSVC use the `windows-msvc-gui` configure/build/test presets and launch
+`build/windows-msvc-gui/apps/simulator/Debug/pitwall_simulator.exe --drive`.
+
+The current GUI adapter uses Win32/WGL + OpenGL 3.0+ and vendored Dear ImGui sources,
+with no package download. A working GPU driver is required. This adapter is Windows
+only; headless libraries remain independent of it. A GLFW adapter is deferred until
+a supported source dependency is available. See [GUI architecture](docs/gui.md) and
+[third-party provenance](third_party/imgui/PROVENANCE.md).
+
+In VS Code, install the recommended C/C++ extension, select `PitWall: Drive (MinGW)`
+and press F5. Tasks configure/build before launching. The debugger path is
+`C:/msys64/ucrt64/bin/gdb.exe`; adjust if needed. An interactive VS Code debugger
+session has not been tested.
+
+## Headless build on Windows: available MinGW toolchain
 
 Requirements: CMake 3.24+, a C++20 compiler, and `mingw32-make` on PATH.
 For MSYS2 UCRT64, add its `ucrt64/bin` directory to PATH. All build commands below
@@ -50,7 +86,7 @@ ctest --preset windows-msvc
 
 ## GoogleTest via vcpkg
 
-The default foundation build has no external dependencies. Its small offline test
+The default headless build has no external dependencies. Its small offline test
 runner executes the same domain contract as the optional GoogleTest runner.
 To enable GoogleTest, install/bootstrap vcpkg separately and set `VCPKG_ROOT`:
 
@@ -89,12 +125,15 @@ See [track rules](docs/tracks.md) for the geometry and timing contracts.
 Current source layout:
 
 - `apps/simulator`: simulator entry point.
+- `apps/simulator/driving_session.*`: platform-independent app composition.
+- `apps/simulator/gui_*`: Windows host and ImGui scene/dashboard rendering.
 - `apps/analyzer`: analyzer entry point.
 - `libs/domain`: shared telemetry types and stateless field validation.
 - `libs/simulation`: vehicle parameters, physics and a bounded fixed-step accumulator.
 - `libs/track`: closed road geometry, projection, swept motion checks and lap tracking.
 - `tests`: domain, physics, frame scheduling, track/lap and application checks.
 - `docs`: design decisions, planned milestones and verification evidence.
+- `third_party/imgui`: source snapshot with MIT license and hashes.
 
 No empty module libraries or placeholder interfaces are created for future features.
 Windows is the primary target; domain code uses only standard C++20.
@@ -105,6 +144,6 @@ Use `.clang-format` for source formatting. Avoid serializing C++ object memory;
 the future wire codec must define an independent format. Keep UI and third-party
 dependencies out of the domain library. Build and test after each small milestone.
 
-Suggested milestone commit: `feat: add track geometry and validated lap timing`.
+Suggested milestone commit: `feat: add interactive simulator with keyboard controls`.
 
 License: MIT; see [LICENSE](LICENSE).

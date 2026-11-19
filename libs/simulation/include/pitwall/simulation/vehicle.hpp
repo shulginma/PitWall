@@ -44,6 +44,7 @@ class VehicleModel {
 public:
     explicit VehicleModel(VehicleConfig config = {});
     [[nodiscard]] const VehicleConfig& config() const noexcept { return config_; }
+    void validate_state(const VehicleState& state) const;
     [[nodiscard]] VehicleState step(const VehicleState& state, const ControlInput& input,
                                     std::chrono::microseconds duration) const;
 

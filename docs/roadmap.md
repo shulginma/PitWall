@@ -8,7 +8,7 @@ Implement one small, buildable slice at a time.
 | Dependency setup | Verify vcpkg/GoogleTest and commit registry baseline | Pending network access |
 | Vehicle model | Fixed-step acceleration, braking, turning; independent tests | Implemented |
 | Track and laps | One circuit; ordered checkpoints; directed finish crossing | Implemented |
-| Interactive simulator | Drive a valid lap using WASD; pause and reset | Planned |
+| Interactive simulator | Drive a valid lap using WASD; pause and reset | Window/controls implemented; manual lap acceptance pending |
 | UDP | Codec validation and loopback integration tests | Planned |
 | Dashboard | Live values, speed/pedals charts, source diagnostics | Planned |
 | Recording and replay | Save, reopen, pause, seek, change playback speed | Planned |
@@ -19,12 +19,10 @@ simulator adapters. No opponent AI, track editor or detailed drivetrain before M
 
 ## Next implementation slice
 
-Add a GLFW/OpenGL window, draw the existing road/car and connect WASD to the existing
-fixed-step runner. Spawn at Track::pose_at(0) using the track tangent for heading.
-Pass every physics tick to LapTracker, not just the final position of a rendered frame.
-Add pause/reset and lap status HUD. A paused frame must not produce a duplicate-time
-lap sample. Keep domain, simulation and track usable without a window. External
-graphics packages will require a working download path or a populated package cache.
+Manually verify the interactive session, then add a versioned UDP codec and sender
+at 50 Hz plus an independent receiving pipeline. Define encodings, session metadata
+and diagnostics before Analyzer UI integration. Preserve headless tests. GLFW
+portability remains a separate adapter task; see docs/gui.md for the current choice.
 
 ## Risks
 

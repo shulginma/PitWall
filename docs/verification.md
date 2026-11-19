@@ -1,11 +1,12 @@
 # Verification
 
-Verified locally on Windows on 2026-11-10:
+Verified locally on Windows on 2026-11-13 (version 0.4.1):
 
 | Configuration | Compiler | Result |
 | --- | --- | --- |
-| windows-mingw, Debug | GNU C++ 16.2.0 / MSYS2 UCRT64 | Configured and built; 58/58 CTest tests passed |
-| windows-msvc, Debug | MSVC 19.41.34123.0 / Visual Studio 2022 | Configured and built; 58/58 CTest tests passed |
+| windows-mingw-gui, Debug | GNU C++ 16.2.0 / MSYS2 UCRT64 | Configured and built; 68/68 CTest tests passed; OpenGL smoke passed |
+| windows-msvc-gui, Debug | MSVC 19.41.34123.0 / Visual Studio 2022 | Configured and built; 68/68 CTest tests passed; OpenGL smoke passed |
+| windows-mingw, Debug (headless, previous 0.4.0) | GNU C++ 16.2.0 / MSYS2 UCRT64 | Previously configured and built; 68/68 CTest tests passed |
 
 CMake version: 4.4.0-rc1. Builds produced no compiler warnings.
 
@@ -42,4 +43,23 @@ GitHub access from the local execution environment failed with a DNS/thread erro
 so external dependencies were not downloaded. No dependency baseline is claimed.
 The GitHub Actions workflow is provided for future repository pushes.
 
-Graphics, keyboard driving, network, database and replay are not implemented.
+Ten additional session tests exercise track spawn, per-tick output, resetting a
+configured spawn, rejecting invalid spawn without mutation, pause, restart, equivalent
+30/144 FPS scheduling, controls, invalid paused frames and render interpolation.
+
+Both compiled GUI executables created an OpenGL 4.6 compatibility context, advanced
+190 physics ticks and rendered 5 hidden frames to a 1280x800 framebuffer texture.
+The framebuffer was read back to BMP; the image was inspected. A preview is included
+at docs/images/simulator.png. This is a real application rendering, not a mockup.
+The diagnostic uses an FBO to avoid undefined/clipped hidden-window swapchain readback.
+
+No physical keyboard, native resize/focus scenario or interactive VS Code F5 session
+was automated. Completing a valid lap by hand remains a user acceptance check.
+Network, database, replay and an Analyzer GUI are not implemented.
+
+0.4.1: MinGW and MSVC GUI builds passed all 68 CTest cases. Both executables also
+ran --gui-window-smoke using the actual visible native-window backbuffer at
+1280x800, with five frames and 190 scripted physics ticks. Top left/right edge
+pixels are nonblank, and the complete rendered native frame and YOU marker were
+visually inspected. This directly covers the native clipping reported by the user;
+the previous FBO-only check did not. No changes to Windows display settings were made.

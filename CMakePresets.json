@@ -1,20 +1,33 @@
 {
   "version": 5,
-  "cmakeMinimumRequired": {"major": 3, "minor": 24, "patch": 0},
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 24,
+    "patch": 0
+  },
   "configurePresets": [
     {
       "name": "base",
       "hidden": true,
       "binaryDir": "${sourceDir}/build/${presetName}",
-      "cacheVariables": {"BUILD_TESTING": "ON", "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"}
+      "cacheVariables": {
+        "BUILD_TESTING": "ON",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
     },
     {
       "name": "windows-mingw",
       "displayName": "Windows MinGW - offline foundation",
       "inherits": "base",
       "generator": "MinGW Makefiles",
-      "condition": {"type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows"},
-      "cacheVariables": {"CMAKE_BUILD_TYPE": "Debug"}
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
     },
     {
       "name": "windows-msvc",
@@ -22,14 +35,24 @@
       "inherits": "base",
       "generator": "Visual Studio 17 2022",
       "architecture": "x64",
-      "condition": {"type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows"}
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
     },
     {
       "name": "linux-debug",
       "inherits": "base",
       "generator": "Unix Makefiles",
-      "condition": {"type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux"},
-      "cacheVariables": {"CMAKE_BUILD_TYPE": "Debug"}
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
     },
     {
       "name": "windows-msvc-vcpkg",
@@ -40,18 +63,116 @@
         "VCPKG_TARGET_TRIPLET": "x64-windows",
         "PITWALL_USE_GOOGLETEST": "ON"
       }
+    },
+    {
+      "name": "windows-mingw-gui",
+      "displayName": "Windows mingw interactive simulator",
+      "inherits": "windows-mingw",
+      "cacheVariables": {
+        "PITWALL_BUILD_GUI": "ON"
+      }
+    },
+    {
+      "name": "windows-msvc-gui",
+      "displayName": "Windows msvc interactive simulator",
+      "inherits": "windows-msvc",
+      "cacheVariables": {
+        "PITWALL_BUILD_GUI": "ON"
+      }
     }
   ],
   "buildPresets": [
-    {"name": "windows-mingw", "configurePreset": "windows-mingw"},
-    {"name": "windows-msvc", "configurePreset": "windows-msvc", "configuration": "Debug"},
-    {"name": "linux-debug", "configurePreset": "linux-debug"},
-    {"name": "windows-msvc-vcpkg", "configurePreset": "windows-msvc-vcpkg", "configuration": "Debug"}
+    {
+      "name": "windows-mingw",
+      "configurePreset": "windows-mingw"
+    },
+    {
+      "name": "windows-msvc",
+      "configurePreset": "windows-msvc",
+      "configuration": "Debug"
+    },
+    {
+      "name": "linux-debug",
+      "configurePreset": "linux-debug"
+    },
+    {
+      "name": "windows-msvc-vcpkg",
+      "configurePreset": "windows-msvc-vcpkg",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-mingw-gui",
+      "configurePreset": "windows-mingw-gui"
+    },
+    {
+      "name": "windows-msvc-gui",
+      "configurePreset": "windows-msvc-gui",
+      "configuration": "Debug"
+    }
   ],
   "testPresets": [
-    {"name": "windows-mingw", "configurePreset": "windows-mingw", "output": {"outputOnFailure": true}, "execution": {"noTestsAction": "error"}},
-    {"name": "windows-msvc", "configurePreset": "windows-msvc", "configuration": "Debug", "output": {"outputOnFailure": true}, "execution": {"noTestsAction": "error"}},
-    {"name": "linux-debug", "configurePreset": "linux-debug", "output": {"outputOnFailure": true}, "execution": {"noTestsAction": "error"}},
-    {"name": "windows-msvc-vcpkg", "configurePreset": "windows-msvc-vcpkg", "configuration": "Debug", "output": {"outputOnFailure": true}, "execution": {"noTestsAction": "error"}}
+    {
+      "name": "windows-mingw",
+      "configurePreset": "windows-mingw",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "windows-msvc",
+      "configurePreset": "windows-msvc",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "linux-debug",
+      "configurePreset": "linux-debug",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "windows-msvc-vcpkg",
+      "configurePreset": "windows-msvc-vcpkg",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "windows-mingw-gui",
+      "configurePreset": "windows-mingw-gui",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "windows-msvc-gui",
+      "configurePreset": "windows-msvc-gui",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      },
+      "configuration": "Debug"
+    }
   ]
 }

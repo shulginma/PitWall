@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "PitWall: configure GUI",
+      "type": "process",
+      "command": "cmake",
+      "args": ["--preset", "windows-mingw-gui"],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {"PATH": "C:\\msys64\\ucrt64\\bin;${env:PATH}"}
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "PitWall: build GUI",
+      "type": "process",
+      "command": "cmake",
+      "args": ["--build", "--preset", "windows-mingw-gui", "--parallel", "2"],
+      "dependsOn": "PitWall: configure GUI",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {"PATH": "C:\\msys64\\ucrt64\\bin;${env:PATH}"}
+      },
+      "group": {"kind": "build", "isDefault": true},
+      "problemMatcher": ["$gcc"]
+    }
+  ]
+}

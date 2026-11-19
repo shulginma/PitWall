@@ -58,14 +58,18 @@ VehicleModel::VehicleModel(VehicleConfig config) : config_(config) {
     check_config(config_);
 }
 
-VehicleState VehicleModel::step(const VehicleState& state, const ControlInput& input,
-                                std::chrono::microseconds duration) const {
-    validate_controls(input);
+void VehicleModel::validate_state(const VehicleState& state) const {
     if (!finite_state(state) || state.speed_mps < 0.0 ||
         state.speed_mps > config_.max_speed_mps || state.distance_m < 0.0 ||
         std::abs(state.steering_rad) > config_.max_steering_rad) {
         throw std::invalid_argument("Invalid vehicle state");
     }
+}
+
+VehicleState VehicleModel::step(const VehicleState& state, const ControlInput& input,
+                                std::chrono::microseconds duration) const {
+    validate_controls(input);
+    validate_state(state);
     if (duration.count() <= 0 || duration > std::chrono::milliseconds{50}) {
         throw std::invalid_argument("Physics step must be in (0, 50ms]");
     }

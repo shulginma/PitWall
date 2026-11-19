@@ -67,7 +67,10 @@ the effective control history; no cross-platform bitwise determinism is promised
 
 State is committed only after an entire advance succeeds. Invalid controls (even
 on zero-tick frames), invalid durations, states/configurations and arithmetic overflow
-are reported through exceptions. `reset()` clears state, input, remainder and clock.
+are reported through exceptions. `reset()` restores the configured initial state,
+clears input, remainder and clock. `reset(state)` validates/replaces the spawn.
+Default spawn remains zero. `previous_state()` supports render interpolation;
+`last_ticks()` exposes each executed state/time for lap processing.
 The caller assigns session IDs; reset does not invent a unique ID.
 
 `telemetry(session_id)` converts the current physics state to a domain sample.
